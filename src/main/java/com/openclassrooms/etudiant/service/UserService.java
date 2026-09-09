@@ -37,14 +37,16 @@ public class UserService {
         Assert.notNull(login, "Login must not be null");
         Assert.notNull(password, "Password must not be null");
         Optional<User> user = userRepository.findByLogin(login);
-        if (user.isPresent() && passwordEncoder.matches(password, password)) {
-            UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                    .username(login).build();
-            return jwtService.generateToken(userDetails);
-        } else {
+        if (user.isEmpty()) {
             throw new IllegalArgumentException("Invalid credentials");
         }
+        String hashedPassword = user.get().getPassword();
+        if (!passwordEncoder.matches(password, hashedPassword)) {
+            throw new IllegalArgumentException("Invalid credentials");
+        }
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder().username(login).password(hashedPassword)
+                .authorities(java.util.Collections.emptyList()).build(); // Create UserDetails object with empty authorities (no roles / permissions)
+        return jwtService.generateToken(userDetails);
     }
-
 
 }

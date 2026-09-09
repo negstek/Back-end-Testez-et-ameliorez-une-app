@@ -11,6 +11,10 @@ spring:
     password: ${DB_PASSWORD}
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
 
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+
 logging:
   level:
     org:
