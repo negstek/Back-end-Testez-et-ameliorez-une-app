@@ -163,8 +163,9 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test('Réponse = un token JWT non vide', function () {",
-                  "    pm.expect(pm.response.text()).to.match(/^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/);",
+                  "pm.test('Réponse = { token: <JWT> }', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.token).to.match(/^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/);",
                   "});"
                 ]
               }

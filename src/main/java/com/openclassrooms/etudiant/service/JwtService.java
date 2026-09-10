@@ -14,9 +14,11 @@ import java.util.Date;
 @Service
 public class JwtService {
 
+    // HMAC signing key, must be kept server-side only (never exposed to clients)
     @Value("${jwt.secret}")
     private String secret;
 
+    // Token time-to-live in milliseconds
     @Value("${jwt.expiration-ms}")
     private long expirationMs;
 
@@ -24,6 +26,8 @@ public class JwtService {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationMs);
 
+        // Builds a signed JWT (header.payload.signature): subject identifies the user,
+        // issuedAt/expiration bound its validity window, signWith seals it against tampering.
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(now)
@@ -32,6 +36,7 @@ public class JwtService {
                 .compact();
     }
 
+    // Derives an HMAC-SHA key from the raw secret for signing/verifying tokens
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
