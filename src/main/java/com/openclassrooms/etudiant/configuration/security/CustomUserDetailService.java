@@ -13,6 +13,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    // Also called by JwtAuthenticationFilter to reload the authenticated user behind a JWT's subject claim
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         return userRepository.findByLogin(login)

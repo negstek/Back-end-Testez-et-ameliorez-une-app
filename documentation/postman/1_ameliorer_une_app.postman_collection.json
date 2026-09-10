@@ -1,0 +1,571 @@
+{
+  "info": {
+    "_postman_id": "799e3ba5-1396-415c-a65e-f01d2a0d01dd",
+    "name": "1_ameliorer_une_app",
+    "description": "Requêtes pour tester l'API du microservice etudiant-backend (inscription, connexion, supervision, CRUD étudiants).\n\n/api/login attend un corps JSON (@RequestBody sur UserController.login), au même format que /api/register, et répond avec { \"token\": \"<JWT>\" }.\n\nLes routes /api/students/** sont protégées : elles exigent un header `Authorization: Bearer <token>`. La requête « Connexion — champs valides » enregistre automatiquement le token obtenu dans la variable de collection {{authToken}}, réutilisée par le dossier « Étudiants ».",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{authToken}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "authToken", "value": "", "type": "string" },
+    { "key": "studentId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Utilisateurs",
+      "item": [
+        {
+          "name": "Inscription — succès",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set('uniqueLogin', 'postman_' + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Ada\",\n  \"lastName\": \"Lovelace\",\n  \"login\": \"{{uniqueLogin}}\",\n  \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "register"]
+            },
+            "description": "Crée un compte agent avec un login unique généré à chaque exécution (voir Pre-request Script)."
+          }
+        },
+        {
+          "name": "Inscription — champs manquants",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "register"]
+            },
+            "description": "Corps vide : les 4 champs @NotBlank de RegisterDTO doivent déclencher une erreur de validation (400)."
+          }
+        },
+        {
+          "name": "Inscription — doublon (1/2, seed)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 201 Created (première inscription)', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Grace\",\n  \"lastName\": \"Hopper\",\n  \"login\": \"postman_duplicate_user\",\n  \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "register"]
+            },
+            "description": "Login fixe pour préparer le test de doublon suivant. Renvoie 201 la première fois, 400 les fois suivantes (la table n'est pas nettoyée entre les runs)."
+          }
+        },
+        {
+          "name": "Inscription — doublon (2/2, attendu 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 400 Bad Request (login déjà pris)', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Grace\",\n  \"lastName\": \"Hopper\",\n  \"login\": \"postman_duplicate_user\",\n  \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "register"]
+            },
+            "description": "Même login que la requête précédente : UserService.register() doit lever IllegalArgumentException → 400."
+          }
+        },
+        {
+          "name": "Connexion — champs valides",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Réponse = { token: <JWT> }', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.token).to.match(/^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$/);",
+                  "    pm.collectionVariables.set('authToken', body.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"{{uniqueLogin}}\",\n  \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "login"]
+            },
+            "description": "À exécuter après « Inscription — succès » dans le même run, pour réutiliser {{uniqueLogin}}."
+          }
+        },
+        {
+          "name": "Connexion — utilisateur inexistant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"utilisateur_inconnu\",\n  \"password\": \"peu-importe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Login absent de la base : UserService.login() doit lever IllegalArgumentException → 400."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Étudiants",
+      "description": "CRUD des étudiants de la bibliothèque (/api/students). Toutes ces routes exigent un Bearer token valide. Le pre-request script du dossier se reconnecte avec {{uniqueLogin}}/{{user_password}} avant CHAQUE requête pour obtenir un token frais (jamais mis en cache, donc jamais expiré) — l'utilisateur correspondant doit déjà exister (l'exécuter après « Inscription — succès », ou renseigner un compte existant dans les variables d'environnement).",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const baseUrl = pm.environment.get('baseUrl');",
+              "const login = pm.environment.get('uniqueLogin');",
+              "const password = pm.environment.get('user_password');",
+              "",
+              "pm.sendRequest({",
+              "    url: baseUrl + '/api/login',",
+              "    method: 'POST',",
+              "    header: { 'Content-Type': 'application/json' },",
+              "    body: {",
+              "        mode: 'raw',",
+              "        raw: JSON.stringify({ login, password })",
+              "    }",
+              "}, function (loginError, loginResponse) {",
+              "    pm.collectionVariables.set('authToken', loginResponse.json().token);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "item": [
+        {
+          "name": "Étudiants — sans token (attendu 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 401 Unauthorized', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students"]
+            },
+            "description": "Aucun header Authorization : la route est protégée, la réponse doit être 401."
+          }
+        },
+        {
+          "name": "Création — succès",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Réponse contient l'étudiant créé\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.id).to.be.a('number');",
+                  "    pm.expect(body.email).to.eql('grace.hopper@example.com');",
+                  "    pm.collectionVariables.set('studentId', body.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Grace\",\n  \"lastName\": \"Hopper\",\n  \"email\": \"grace.hopper@example.com\",\n  \"birthDate\": \"1906-12-09\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students"]
+            },
+            "description": "Authentification héritée de la collection (Bearer {{authToken}}). Enregistre l'id créé dans {{studentId}} pour les requêtes suivantes."
+          }
+        },
+        {
+          "name": "Création — champs invalides",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"\",\n  \"lastName\": \"\",\n  \"email\": \"pas-un-email\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students"]
+            },
+            "description": "firstName/lastName vides et email invalide : @NotBlank/@Email de StudentRequestDTO doivent déclencher une 400."
+          }
+        },
+        {
+          "name": "Liste des étudiants",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Réponse = tableau contenant {{studentId}}', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array');",
+                  "    const id = parseInt(pm.collectionVariables.get('studentId'), 10);",
+                  "    pm.expect(body.some((s) => s.id === id)).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students"]
+            },
+            "description": "À exécuter après « Création — succès » dans le même run, pour retrouver {{studentId}} dans la liste."
+          }
+        },
+        {
+          "name": "Détail d'un étudiant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Réponse correspond à l'étudiant créé\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.id).to.eql(parseInt(pm.collectionVariables.get('studentId'), 10));",
+                  "    pm.expect(body.lastName).to.eql('Hopper');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{studentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students", "{{studentId}}"]
+            },
+            "description": "À exécuter après « Création — succès » dans le même run, pour réutiliser {{studentId}}."
+          }
+        },
+        {
+          "name": "Détail — introuvable (attendu 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students", "999999"]
+            },
+            "description": "Id inexistant : StudentService.findById() doit lever StudentNotFoundException → 404."
+          }
+        },
+        {
+          "name": "Modification — succès",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('lastName mis à jour', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.lastName).to.eql('Brewster Hopper');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Grace\",\n  \"lastName\": \"Brewster Hopper\",\n  \"email\": \"grace.hopper@example.com\",\n  \"birthDate\": \"1906-12-09\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{studentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students", "{{studentId}}"]
+            },
+            "description": "À exécuter après « Création — succès » dans le même run, pour réutiliser {{studentId}}."
+          }
+        },
+        {
+          "name": "Suppression — succès",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 204 No Content', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{studentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students", "{{studentId}}"]
+            },
+            "description": "À exécuter en dernier dans le dossier Étudiants, pour supprimer l'étudiant créé par « Création — succès »."
+          }
+        },
+        {
+          "name": "Suppression — déjà supprimé (attendu 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{studentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students", "{{studentId}}"]
+            },
+            "description": "Même id que la requête précédente : déjà supprimé, StudentService.delete() doit lever StudentNotFoundException → 404."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Supervision",
+      "item": [
+        {
+          "name": "Actuator — health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Statut 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
