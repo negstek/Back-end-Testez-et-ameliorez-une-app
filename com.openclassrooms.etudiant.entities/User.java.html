@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>User.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">etudiant-backend</a> &gt; <a href="index.source.html" class="el_package">com.openclassrooms.etudiant.entities</a> &gt; <span class="el_source">User.java</span></div><h1>User.java</h1><pre class="source lang-java linenums">package com.openclassrooms.etudiant.entities;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
+<span class="fc" id="L23">@NoArgsConstructor</span>
+<span class="nc" id="L24">@AllArgsConstructor</span>
+<span class="pc bnc" id="L25" title="All 62 branches missed.">@Data</span>
+@Entity
+@Table(name = &quot;user&quot;)
+public class User implements UserDetails {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;id&quot;)
+<span class="nc" id="L32">    private Long id;</span>
+
+    @NotBlank
+    @Column(name = &quot;firstName&quot;, nullable = false)
+<span class="nc" id="L36">    private String firstName;</span>
+
+    @NotBlank
+    @Column(name = &quot;lastName&quot;, nullable = false)
+<span class="nc" id="L40">    private String lastName;</span>
+
+    @NotBlank
+    @Column(name = &quot;login&quot;, unique = true, nullable = false)
+<span class="fc" id="L44">    private String login;</span>
+
+    @NotBlank
+    @Column(name = &quot;password&quot;, nullable = false)
+<span class="fc" id="L48">    private String password;</span>
+
+    @CreationTimestamp
+    @Column(name = &quot;created_at&quot;)
+<span class="nc" id="L52">    private LocalDateTime created_at;</span>
+
+    @UpdateTimestamp
+    @Column(name = &quot;updated_at&quot;)
+<span class="nc" id="L56">    private LocalDateTime updated_at;</span>
+
+
+    @Override
+    public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
+<span class="nc" id="L61">        return List.of();</span>
+    }
+
+    @Override
+    public String getUsername() {
+<span class="nc" id="L66">        return login;</span>
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+<span class="nc" id="L71">        return true;</span>
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+<span class="nc" id="L76">        return true;</span>
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+<span class="nc" id="L81">        return true;</span>
+    }
+
+    @Override
+    public boolean isEnabled() {
+<span class="nc" id="L86">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
