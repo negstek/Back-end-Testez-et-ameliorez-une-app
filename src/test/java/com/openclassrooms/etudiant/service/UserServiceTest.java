@@ -5,7 +5,6 @@ import com.openclassrooms.etudiant.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +23,7 @@ public class UserServiceTest {
     private static final String LAST_NAME = "Doe";
     private static final String LOGIN = "LOGIN";
     private static final String PASSWORD = "PASSWORD";
+    private static final String ENCODED_PASSWORD = "ENCODED_PASSWORD";
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -48,7 +48,6 @@ public class UserServiceTest {
         user.setLastName(LAST_NAME);
         user.setLogin(LOGIN);
         user.setPassword(PASSWORD);
-        when(passwordEncoder.encode(PASSWORD)).thenReturn(PASSWORD);
         when(userRepository.findByLogin(any())).thenReturn(Optional.of(user));
 
         // THEN
@@ -64,15 +63,14 @@ public class UserServiceTest {
         user.setLastName(LAST_NAME);
         user.setLogin(LOGIN);
         user.setPassword(PASSWORD);
-        when(passwordEncoder.encode(PASSWORD)).thenReturn(PASSWORD);
+        when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
         when(userRepository.findByLogin(any())).thenReturn(Optional.empty());
 
         // WHEN
         userService.register(user);
 
         // THEN
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
-        assertThat(userCaptor.getValue()).isEqualTo(user);
+        verify(userRepository).save(user); // same reference: register() mutates `user` in place
+        assertThat(user.getPassword()).isEqualTo(ENCODED_PASSWORD); // distinct from PASSWORD, so encoding must actually run to pass
     }
 }

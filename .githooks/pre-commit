@@ -1,0 +1,7 @@
+#!/bin/sh
+# Fast local safety net: run unit tests only (excludes *ControllerTest, which needs
+# Docker/Testcontainers and takes ~20s). The full suite runs in CI on every push.
+set -e
+
+echo "Running unit tests before commit..."
+mvn -q -Dtest='!*ControllerTest' test

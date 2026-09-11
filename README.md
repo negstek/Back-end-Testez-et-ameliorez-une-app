@@ -1,5 +1,8 @@
 # MS etudiant-backend
 
+[![CI](https://github.com/negstek/Back-end-Testez-et-ameliorez-une-app/actions/workflows/ci.yml/badge.svg)](https://github.com/negstek/Back-end-Testez-et-ameliorez-une-app/actions/workflows/ci.yml)
+[![Coverage](https://negstek.github.io/Back-end-Testez-et-ameliorez-une-app/badges/jacoco.svg)](https://negstek.github.io/Back-end-Testez-et-ameliorez-une-app/)
+
 Backend qui gère les APIs des utilisateurs de la bibliothèque et les CRUD des étudiants.
 
 ## Configuration du backend
@@ -113,6 +116,18 @@ Pour exécuter les tests Junit, il faut :
 
 ```
 mvn clean test
+```
+
+Un rapport de couverture JaCoCo est généré dans `target/site/jacoco/index.html`.
+
+## Intégration continue
+
+Chaque push/PR sur `main` déclenche une CI GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) qui exécute la suite de tests complète et publie le rapport de couverture sur GitHub Pages : https://negstek.github.io/Back-end-Testez-et-ameliorez-une-app/
+
+Un hook `pre-commit` versionné dans [`.githooks/`](.githooks/) exécute les tests unitaires (hors tests d'intégration Docker) avant chaque commit local, pour un retour rapide. Pour l'activer sur un clone :
+
+```
+git config core.hooksPath .githooks
 ```
 
 ## Fonctionnalités portées

@@ -71,6 +71,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
+                // THEN
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -96,6 +97,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
+                // THEN
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
@@ -114,6 +116,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
+                // THEN
                 .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 }
