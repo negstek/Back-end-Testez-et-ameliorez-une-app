@@ -25,6 +25,9 @@ public class JwtServiceTest {
         jwtService = new JwtService(SECRET, EXPIRATION_MS);
     }
 
+    // A factory method rather than a @Mock field: several tests below need more than one
+    // UserDetails with a different username in the same test (e.g. "alice" then "bob"), which a
+    // fixed @Mock-annotated field can't parametrize — each call here builds and stubs a fresh mock.
     private UserDetails userDetails(String username) {
         UserDetails userDetails = mock(UserDetails.class);
         when(userDetails.getUsername()).thenReturn(username);

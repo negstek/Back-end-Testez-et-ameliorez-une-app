@@ -1,7 +1,13 @@
 #!/bin/sh
 # Fast local safety net: run @Tag("unit") tests only (excludes @Tag("integration"), which needs
 # Docker/Testcontainers and takes ~20s). The full suite runs in CI on every push.
+#
+# RunCucumberIntegrationTest is excluded by name, not by tag: a Java @Tag on a @Suite class
+# doesn't reliably prune it from a -Dgroups filtered run (see that class's Javadoc-style comment).
+# RunCucumberTest (the plain-Mockito Cucumber suite) is deliberately NOT excluded — it stays in
+# the fast path like any other @Tag("unit") test, since its glue package has no Spring/Docker
+# dependency at all.
 set -e
 
 echo "Running unit tests before commit..."
-mvn -q -Dgroups=unit test
+mvn -q -Dgroups=unit -Dtest='!RunCucumberIntegrationTest' test
