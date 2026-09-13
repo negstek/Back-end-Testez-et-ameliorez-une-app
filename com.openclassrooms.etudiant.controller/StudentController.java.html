@@ -31,34 +31,34 @@ public class StudentController {
 
     @PostMapping
     public ResponseEntity&lt;StudentResponseDTO&gt; create(@Valid @RequestBody StudentRequestDTO studentRequestDTO) {
-<span class="nc" id="L34">        var student = studentService.create(studentDtoMapper.toEntity(studentRequestDTO));</span>
-<span class="nc" id="L35">        return new ResponseEntity&lt;&gt;(studentDtoMapper.toResponseDTO(student), HttpStatus.CREATED);</span>
+<span class="fc" id="L34">        var student = studentService.create(studentDtoMapper.toEntity(studentRequestDTO));</span>
+<span class="fc" id="L35">        return new ResponseEntity&lt;&gt;(studentDtoMapper.toResponseDTO(student), HttpStatus.CREATED);</span>
     }
 
     @GetMapping
     public ResponseEntity&lt;List&lt;StudentResponseDTO&gt;&gt; findAll() {
-<span class="nc" id="L40">        List&lt;StudentResponseDTO&gt; students = studentService.findAll().stream()</span>
-<span class="nc" id="L41">                .map(studentDtoMapper::toResponseDTO)</span>
-<span class="nc" id="L42">                .toList();</span>
-<span class="nc" id="L43">        return ResponseEntity.ok(students);</span>
+<span class="fc" id="L40">        List&lt;StudentResponseDTO&gt; students = studentService.findAll().stream()</span>
+<span class="fc" id="L41">                .map(studentDtoMapper::toResponseDTO)</span>
+<span class="fc" id="L42">                .toList();</span>
+<span class="fc" id="L43">        return ResponseEntity.ok(students);</span>
     }
 
     @GetMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;StudentResponseDTO&gt; findById(@PathVariable Long id) {
-<span class="nc" id="L48">        return ResponseEntity.ok(studentDtoMapper.toResponseDTO(studentService.findById(id)));</span>
+<span class="fc" id="L48">        return ResponseEntity.ok(studentDtoMapper.toResponseDTO(studentService.findById(id)));</span>
     }
 
     @PutMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;StudentResponseDTO&gt; update(@PathVariable Long id,
                                                        @Valid @RequestBody StudentRequestDTO studentRequestDTO) {
-<span class="nc" id="L54">        var student = studentService.update(id, studentDtoMapper.toEntity(studentRequestDTO));</span>
-<span class="nc" id="L55">        return ResponseEntity.ok(studentDtoMapper.toResponseDTO(student));</span>
+<span class="fc" id="L54">        var student = studentService.update(id, studentDtoMapper.toEntity(studentRequestDTO));</span>
+<span class="fc" id="L55">        return ResponseEntity.ok(studentDtoMapper.toResponseDTO(student));</span>
     }
 
     @DeleteMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;Void&gt; delete(@PathVariable Long id) {
-<span class="nc" id="L60">        studentService.delete(id);</span>
-<span class="nc" id="L61">        return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L60">        studentService.delete(id);</span>
+<span class="fc" id="L61">        return ResponseEntity.noContent().build();</span>
     }
 
 }

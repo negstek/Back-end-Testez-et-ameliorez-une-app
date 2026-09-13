@@ -63,8 +63,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 <span class="fc" id="L63">                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)</span>
 <span class="fc" id="L64">                .exceptionHandling(exceptionHandling -&gt; exceptionHandling.authenticationEntryPoint(</span>
                         (request, response, exception) -&gt; {
-<span class="nc" id="L66">                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, exception.getMessage());</span>
-<span class="nc" id="L67">                        }));</span>
+<span class="fc" id="L66">                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, exception.getMessage());</span>
+<span class="fc" id="L67">                        }));</span>
 <span class="fc" id="L68">        return http.build();</span>
     }
 

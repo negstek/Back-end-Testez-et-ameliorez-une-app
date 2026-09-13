@@ -32,34 +32,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 <span class="fc" id="L34">        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);</span>
-<span class="pc bpc" id="L35" title="3 of 4 branches missed.">        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {</span>
+<span class="pc bpc" id="L35" title="1 of 4 branches missed.">        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {</span>
             // No Bearer header: let the request through unauthenticated. Public routes still work
             // (permitAll), protected ones get rejected downstream by authorizeHttpRequests.
 <span class="fc" id="L38">            filterChain.doFilter(request, response);</span>
 <span class="fc" id="L39">            return;</span>
         }
 
-<span class="nc" id="L42">        String token = authHeader.substring(BEARER_PREFIX.length());</span>
+<span class="fc" id="L42">        String token = authHeader.substring(BEARER_PREFIX.length());</span>
         try {
-<span class="nc" id="L44">            String login = jwtService.extractUsername(token);</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (SecurityContextHolder.getContext().getAuthentication() == null) {</span>
-<span class="nc" id="L46">                UserDetails userDetails = customUserDetailService.loadUserByUsername(login);</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">                if (jwtService.isTokenValid(token, userDetails)) {</span>
+<span class="fc" id="L44">            String login = jwtService.extractUsername(token);</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">            if (SecurityContextHolder.getContext().getAuthentication() == null) {</span>
+<span class="fc" id="L46">                UserDetails userDetails = customUserDetailService.loadUserByUsername(login);</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">                if (jwtService.isTokenValid(token, userDetails)) {</span>
                     // principal/credentials/authorities constructor marks this token as already
                     // authenticated (no credentials check needed, the JWT signature already proved it)
-<span class="nc" id="L50">                    UsernamePasswordAuthenticationToken authToken =</span>
-<span class="nc" id="L51">                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());</span>
-<span class="nc" id="L52">                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));</span>
-<span class="nc" id="L53">                    SecurityContextHolder.getContext().setAuthentication(authToken);</span>
+<span class="fc" id="L50">                    UsernamePasswordAuthenticationToken authToken =</span>
+<span class="fc" id="L51">                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());</span>
+<span class="fc" id="L52">                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));</span>
+<span class="fc" id="L53">                    SecurityContextHolder.getContext().setAuthentication(authToken);</span>
                 }
             }
 <span class="nc" id="L56">        } catch (JwtException | UsernameNotFoundException exception) {</span>
             // Invalid, malformed or expired token: leave the request unauthenticated so the
             // security chain's authenticationEntryPoint responds 401 for protected routes.
-<span class="nc" id="L59">        }</span>
+<span class="fc" id="L59">        }</span>
 
-<span class="nc" id="L61">        filterChain.doFilter(request, response);</span>
-<span class="nc" id="L62">    }</span>
+<span class="fc" id="L61">        filterChain.doFilter(request, response);</span>
+<span class="fc" id="L62">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

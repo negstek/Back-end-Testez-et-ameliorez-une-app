@@ -39,8 +39,8 @@ import java.time.LocalDateTime;
     @ExceptionHandler(value = {StudentNotFoundException.class})
     protected ResponseEntity&lt;Object&gt; handleStudentNotFoundException(StudentNotFoundException studentNotFoundException,
                                                                      WebRequest request) {
-<span class="nc" id="L42">        logError(studentNotFoundException);</span>
-<span class="nc" id="L43">        return handleExceptionInternal(studentNotFoundException, getErrorDetails(studentNotFoundException, request),</span>
+<span class="fc" id="L42">        logError(studentNotFoundException);</span>
+<span class="fc" id="L43">        return handleExceptionInternal(studentNotFoundException, getErrorDetails(studentNotFoundException, request),</span>
                 new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 

@@ -18,9 +18,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 <span class="fc" id="L20">@NoArgsConstructor</span>
-<span class="nc" id="L21">@AllArgsConstructor</span>
-<span class="nc" id="L22">@Builder</span>
-<span class="nc bnc" id="L23" title="All 62 branches missed.">@Data</span>
+<span class="fc" id="L21">@AllArgsConstructor</span>
+<span class="pc" id="L22">@Builder</span>
+<span class="pc bpc" id="L23" title="61 of 62 branches missed.">@Data</span>
 // Plain domain entity, unlike User: a Student never logs in, so it doesn't implement UserDetails.
 @Entity
 @Table(name = &quot;student&quot;)
@@ -28,22 +28,22 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = &quot;id&quot;)
-<span class="nc" id="L31">    private Long id;</span>
+<span class="fc" id="L31">    private Long id;</span>
 
     @NotBlank
     @Column(name = &quot;first_name&quot;, nullable = false)
-<span class="nc" id="L35">    private String firstName;</span>
+<span class="fc" id="L35">    private String firstName;</span>
 
     @NotBlank
     @Column(name = &quot;last_name&quot;, nullable = false)
-<span class="nc" id="L39">    private String lastName;</span>
+<span class="fc" id="L39">    private String lastName;</span>
 
     @NotBlank
     @Column(name = &quot;email&quot;, unique = true, nullable = false)
-<span class="nc" id="L43">    private String email;</span>
+<span class="fc" id="L43">    private String email;</span>
 
     @Column(name = &quot;birth_date&quot;)
-<span class="nc" id="L46">    private LocalDate birthDate;</span>
+<span class="fc" id="L46">    private LocalDate birthDate;</span>
 
     @CreationTimestamp
     @Column(name = &quot;created_at&quot;)

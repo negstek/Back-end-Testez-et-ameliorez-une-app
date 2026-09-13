@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = &quot;org.mapstruct.ap.MappingProcessor&quot;,
-    date = &quot;2026-09-12T00:12:23+0000&quot;,
+    date = &quot;2026-09-13T01:34:51+0000&quot;,
     comments = &quot;version: 1.6.3, compiler: javac, environment: Java 21.0.12.1 (Eclipse Adoptium)&quot;
 )
 @Component
@@ -16,35 +16,35 @@ import org.springframework.stereotype.Component;
 
     @Override
     public Student toEntity(StudentRequestDTO studentRequestDTO) {
-<span class="nc bnc" id="L19" title="All 2 branches missed.">        if ( studentRequestDTO == null ) {</span>
+<span class="pc bpc" id="L19" title="1 of 2 branches missed.">        if ( studentRequestDTO == null ) {</span>
 <span class="nc" id="L20">            return null;</span>
         }
 
-<span class="nc" id="L23">        Student.StudentBuilder student = Student.builder();</span>
+<span class="fc" id="L23">        Student.StudentBuilder student = Student.builder();</span>
 
-<span class="nc" id="L25">        student.firstName( studentRequestDTO.getFirstName() );</span>
-<span class="nc" id="L26">        student.lastName( studentRequestDTO.getLastName() );</span>
-<span class="nc" id="L27">        student.email( studentRequestDTO.getEmail() );</span>
-<span class="nc" id="L28">        student.birthDate( studentRequestDTO.getBirthDate() );</span>
+<span class="fc" id="L25">        student.firstName( studentRequestDTO.getFirstName() );</span>
+<span class="fc" id="L26">        student.lastName( studentRequestDTO.getLastName() );</span>
+<span class="fc" id="L27">        student.email( studentRequestDTO.getEmail() );</span>
+<span class="fc" id="L28">        student.birthDate( studentRequestDTO.getBirthDate() );</span>
 
-<span class="nc" id="L30">        return student.build();</span>
+<span class="fc" id="L30">        return student.build();</span>
     }
 
     @Override
     public StudentResponseDTO toResponseDTO(Student student) {
-<span class="nc bnc" id="L35" title="All 2 branches missed.">        if ( student == null ) {</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">        if ( student == null ) {</span>
 <span class="nc" id="L36">            return null;</span>
         }
 
-<span class="nc" id="L39">        StudentResponseDTO studentResponseDTO = new StudentResponseDTO();</span>
+<span class="fc" id="L39">        StudentResponseDTO studentResponseDTO = new StudentResponseDTO();</span>
 
-<span class="nc" id="L41">        studentResponseDTO.setId( student.getId() );</span>
-<span class="nc" id="L42">        studentResponseDTO.setFirstName( student.getFirstName() );</span>
-<span class="nc" id="L43">        studentResponseDTO.setLastName( student.getLastName() );</span>
-<span class="nc" id="L44">        studentResponseDTO.setEmail( student.getEmail() );</span>
-<span class="nc" id="L45">        studentResponseDTO.setBirthDate( student.getBirthDate() );</span>
+<span class="fc" id="L41">        studentResponseDTO.setId( student.getId() );</span>
+<span class="fc" id="L42">        studentResponseDTO.setFirstName( student.getFirstName() );</span>
+<span class="fc" id="L43">        studentResponseDTO.setLastName( student.getLastName() );</span>
+<span class="fc" id="L44">        studentResponseDTO.setEmail( student.getEmail() );</span>
+<span class="fc" id="L45">        studentResponseDTO.setBirthDate( student.getBirthDate() );</span>
 
-<span class="nc" id="L47">        return studentResponseDTO;</span>
+<span class="fc" id="L47">        return studentResponseDTO;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

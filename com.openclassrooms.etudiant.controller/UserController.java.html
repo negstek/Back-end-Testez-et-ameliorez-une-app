@@ -30,8 +30,8 @@ public class UserController {
 
     @PostMapping(&quot;/api/login&quot;)
     public ResponseEntity&lt;?&gt; login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
-<span class="nc" id="L33">        String jwtToken = userService.login(loginRequestDTO.getLogin(), loginRequestDTO.getPassword());</span>
-<span class="nc" id="L34">        return ResponseEntity.ok(new LoginResponseDTO(jwtToken));</span>
+<span class="fc" id="L33">        String jwtToken = userService.login(loginRequestDTO.getLogin(), loginRequestDTO.getPassword());</span>
+<span class="fc" id="L34">        return ResponseEntity.ok(new LoginResponseDTO(jwtToken));</span>
     }
 
 
