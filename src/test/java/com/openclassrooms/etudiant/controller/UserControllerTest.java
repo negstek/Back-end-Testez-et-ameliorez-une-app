@@ -7,6 +7,7 @@ import com.openclassrooms.etudiant.entities.User;
 import com.openclassrooms.etudiant.repository.UserRepository;
 import com.openclassrooms.etudiant.service.UserService;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,6 +24,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+// "integration": full Spring context + real MySQL via Testcontainers — needs Docker, excluded from the pre-commit hook
+@Tag("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Testcontainers
@@ -62,6 +65,7 @@ public class UserControllerTest {
         userRepository.deleteAll();
     }
 
+    // Verifies that bean validation (@NotBlank) rejects an empty registration payload
     @Test
     public void registerUserWithoutRequiredData() throws Exception {
         // GIVEN
@@ -77,9 +81,11 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+    // Verifies that the service's login-uniqueness check is enforced through the full HTTP stack, not just in isolation
     @Test
     public void registerAlreadyExistUser() throws Exception {
-        // GIVEN
+        // GIVEN: this user is created directly through the service (real PasswordEncoder bean,
+        // not a mock), which is enough to make the login already taken for the HTTP call below
         User user = new User();
         user.setFirstName(FIRST_NAME);
         user.setLastName(LAST_NAME);
@@ -103,6 +109,7 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+    // Verifies the nominal registration path end-to-end (validation, service, real database)
     @Test
     public void registerUserSuccessful() throws Exception {
         // GIVEN
@@ -122,9 +129,11 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 
+    // Verifies that a registered user logging in with correct credentials receives a non-empty JWT
     @Test
     public void loginSuccessful() throws Exception {
-        // GIVEN
+        // GIVEN: registered through the service, so the password is hashed by the real BCrypt
+        // bean — login() below must then verify it with that same real encoder, not a mock
         User user = new User();
         user.setFirstName(FIRST_NAME);
         user.setLastName(LAST_NAME);
@@ -147,6 +156,7 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.token").isNotEmpty());
     }
 
+    // Verifies that logging in with a login that was never registered is rejected
     @Test
     public void loginWithUnknownLoginReturnsBadRequest() throws Exception {
         // GIVEN
@@ -164,6 +174,7 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+    // Verifies that logging in with the wrong password for an existing login is rejected
     @Test
     public void loginWithWrongPasswordReturnsBadRequest() throws Exception {
         // GIVEN
