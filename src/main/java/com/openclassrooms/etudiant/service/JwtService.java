@@ -16,12 +16,18 @@ import java.util.Date;
 public class JwtService {
 
     // HMAC signing key, must be kept server-side only (never exposed to clients)
-    @Value("${jwt.secret}")
-    private String secret;
+    private final String secret;
 
     // Token time-to-live in milliseconds
-    @Value("${jwt.expiration-ms}")
-    private long expirationMs;
+    private final long expirationMs;
+
+    // Constructor injection (rather than field injection) lets tests build a JwtService
+    // directly with fixed values, with no need for reflection to reach the private fields.
+    public JwtService(@Value("${jwt.secret}") String secret,
+                       @Value("${jwt.expiration-ms}") long expirationMs) {
+        this.secret = secret;
+        this.expirationMs = expirationMs;
+    }
 
     public String generateToken(UserDetails userDetails) {
         Date now = new Date();
@@ -52,6 +58,11 @@ public class JwtService {
         return extractClaims(token).getExpiration().before(new Date());
     }
 
+    // Parses the token and returns its payload (claims: subject, issuedAt, expiration...).
+    // verifyWith() makes parseSignedClaims() check the signature against this service's key,
+    // throwing (SignatureException/ExpiredJwtException/...) rather than returning claims if the
+    // token was tampered with or has expired — this is the single choke point both
+    // extractUsername() and isTokenExpired() go through to read a token's payload.
     private Claims extractClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
