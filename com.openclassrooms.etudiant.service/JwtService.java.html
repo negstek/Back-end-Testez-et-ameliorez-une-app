@@ -13,56 +13,67 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Service
-<span class="fc" id="L16">public class JwtService {</span>
+public class JwtService {
 
     // HMAC signing key, must be kept server-side only (never exposed to clients)
-    @Value(&quot;${jwt.secret}&quot;)
-    private String secret;
+    private final String secret;
 
     // Token time-to-live in milliseconds
-    @Value(&quot;${jwt.expiration-ms}&quot;)
-    private long expirationMs;
+    private final long expirationMs;
+
+    // Constructor injection (rather than field injection) lets tests build a JwtService
+    // directly with fixed values, with no need for reflection to reach the private fields.
+    public JwtService(@Value(&quot;${jwt.secret}&quot;) String secret,
+<span class="fc" id="L27">                       @Value(&quot;${jwt.expiration-ms}&quot;) long expirationMs) {</span>
+<span class="fc" id="L28">        this.secret = secret;</span>
+<span class="fc" id="L29">        this.expirationMs = expirationMs;</span>
+<span class="fc" id="L30">    }</span>
 
     public String generateToken(UserDetails userDetails) {
-<span class="fc" id="L27">        Date now = new Date();</span>
-<span class="fc" id="L28">        Date expiration = new Date(now.getTime() + expirationMs);</span>
+<span class="fc" id="L33">        Date now = new Date();</span>
+<span class="fc" id="L34">        Date expiration = new Date(now.getTime() + expirationMs);</span>
 
         // Builds a signed JWT (header.payload.signature): subject identifies the user,
         // issuedAt/expiration bound its validity window, signWith seals it against tampering.
-<span class="fc" id="L32">        return Jwts.builder()</span>
-<span class="fc" id="L33">                .subject(userDetails.getUsername())</span>
-<span class="fc" id="L34">                .issuedAt(now)</span>
-<span class="fc" id="L35">                .expiration(expiration)</span>
-<span class="fc" id="L36">                .signWith(getSigningKey())</span>
-<span class="fc" id="L37">                .compact();</span>
+<span class="fc" id="L38">        return Jwts.builder()</span>
+<span class="fc" id="L39">                .subject(userDetails.getUsername())</span>
+<span class="fc" id="L40">                .issuedAt(now)</span>
+<span class="fc" id="L41">                .expiration(expiration)</span>
+<span class="fc" id="L42">                .signWith(getSigningKey())</span>
+<span class="fc" id="L43">                .compact();</span>
     }
 
     public String extractUsername(String token) {
-<span class="fc" id="L41">        return extractClaims(token).getSubject();</span>
+<span class="fc" id="L47">        return extractClaims(token).getSubject();</span>
     }
 
     // Signature and expiration are both checked here: parseSignedClaims throws on an
     // invalid signature, and getExpiration()/before(now) rejects an expired token.
     public boolean isTokenValid(String token, UserDetails userDetails) {
-<span class="fc" id="L47">        String username = extractUsername(token);</span>
-<span class="pc bpc" id="L48" title="1 of 4 branches missed.">        return username.equals(userDetails.getUsername()) &amp;&amp; !isTokenExpired(token);</span>
+<span class="fc" id="L53">        String username = extractUsername(token);</span>
+<span class="pc bpc" id="L54" title="1 of 4 branches missed.">        return username.equals(userDetails.getUsername()) &amp;&amp; !isTokenExpired(token);</span>
     }
 
     private boolean isTokenExpired(String token) {
-<span class="fc" id="L52">        return extractClaims(token).getExpiration().before(new Date());</span>
+<span class="fc" id="L58">        return extractClaims(token).getExpiration().before(new Date());</span>
     }
 
+    // Parses the token and returns its payload (claims: subject, issuedAt, expiration...).
+    // verifyWith() makes parseSignedClaims() check the signature against this service's key,
+    // throwing (SignatureException/ExpiredJwtException/...) rather than returning claims if the
+    // token was tampered with or has expired — this is the single choke point both
+    // extractUsername() and isTokenExpired() go through to read a token's payload.
     private Claims extractClaims(String token) {
-<span class="fc" id="L56">        return Jwts.parser()</span>
-<span class="fc" id="L57">                .verifyWith(getSigningKey())</span>
-<span class="fc" id="L58">                .build()</span>
-<span class="fc" id="L59">                .parseSignedClaims(token)</span>
-<span class="fc" id="L60">                .getPayload();</span>
+<span class="fc" id="L67">        return Jwts.parser()</span>
+<span class="fc" id="L68">                .verifyWith(getSigningKey())</span>
+<span class="fc" id="L69">                .build()</span>
+<span class="fc" id="L70">                .parseSignedClaims(token)</span>
+<span class="fc" id="L71">                .getPayload();</span>
     }
 
     // Derives an HMAC-SHA key from the raw secret for signing/verifying tokens
     private SecretKey getSigningKey() {
-<span class="fc" id="L65">        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));</span>
+<span class="fc" id="L76">        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));</span>
     }
 
 }
