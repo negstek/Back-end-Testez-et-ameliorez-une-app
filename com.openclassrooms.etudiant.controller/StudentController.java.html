@@ -23,7 +23,7 @@ import java.util.List;
 // SpringSecurityConfig's anyRequest().authenticated() covers anything not explicitly permitAll.
 @RestController
 @RequestMapping(&quot;/api/students&quot;)
-<span class="fc" id="L26">@RequiredArgsConstructor</span>
+@RequiredArgsConstructor
 public class StudentController {
 
     private final StudentService studentService;

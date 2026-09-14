@@ -20,40 +20,40 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-<span class="fc" id="L23">@NoArgsConstructor</span>
-<span class="nc" id="L24">@AllArgsConstructor</span>
-<span class="pc bnc" id="L25" title="All 62 branches missed.">@Data</span>
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Entity
 @Table(name = &quot;user&quot;)
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = &quot;id&quot;)
-<span class="nc" id="L32">    private Long id;</span>
+    private Long id;
 
     @NotBlank
     @Column(name = &quot;firstName&quot;, nullable = false)
-<span class="nc" id="L36">    private String firstName;</span>
+    private String firstName;
 
     @NotBlank
     @Column(name = &quot;lastName&quot;, nullable = false)
-<span class="nc" id="L40">    private String lastName;</span>
+    private String lastName;
 
     @NotBlank
     @Column(name = &quot;login&quot;, unique = true, nullable = false)
-<span class="fc" id="L44">    private String login;</span>
+    private String login;
 
     @NotBlank
     @Column(name = &quot;password&quot;, nullable = false)
-<span class="fc" id="L48">    private String password;</span>
+    private String password;
 
     @CreationTimestamp
     @Column(name = &quot;created_at&quot;)
-<span class="nc" id="L52">    private LocalDateTime created_at;</span>
+    private LocalDateTime created_at;
 
     @UpdateTimestamp
     @Column(name = &quot;updated_at&quot;)
-<span class="nc" id="L56">    private LocalDateTime updated_at;</span>
+    private LocalDateTime updated_at;
 
 
     @Override
